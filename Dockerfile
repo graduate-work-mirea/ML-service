@@ -12,7 +12,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o ml-prediction-service .
+RUN CGO_ENABLED=0 GOOS=linux go build -o ml-service .
 
 # Create final image with Python and Go binary
 FROM python:3.10-slim
@@ -31,7 +31,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the Go binary from builder stage
-COPY --from=builder /app/ml-prediction-service .
+COPY --from=builder /app/ml-service .
 
 # Copy Python scripts and data directories
 COPY scripts/ ./scripts/
@@ -47,4 +47,4 @@ COPY --from=builder /app/.env.example ./.env
 EXPOSE 8080
 
 # Run the application
-CMD ["./ml-prediction-service"]
+CMD ["./ml-service"]

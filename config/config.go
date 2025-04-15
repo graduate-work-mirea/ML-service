@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -12,6 +13,14 @@ type Config struct {
 	ProcessedDataPath string
 	ServerPort        string
 	SchedulerInterval time.Duration
+
+	// PostgreSQL configuration
+	PostgresHost     string
+	PostgresPort     string
+	PostgresUser     string
+	PostgresPassword string
+	PostgresDBName   string
+	PostgresSSLMode  string
 }
 
 func New() (*Config, error) {
@@ -53,11 +62,54 @@ func New() (*Config, error) {
 		}
 	}
 
+	// PostgreSQL configuration
+	postgresHost := os.Getenv("POSTGRES_HOST")
+	if postgresHost == "" {
+		postgresHost = "localhost"
+	}
+
+	postgresPort := os.Getenv("POSTGRES_PORT")
+	if postgresPort == "" {
+		postgresPort = "5432"
+	}
+
+	postgresUser := os.Getenv("POSTGRES_USER")
+	if postgresUser == "" {
+		postgresUser = "postgres"
+	}
+
+	postgresPassword := os.Getenv("POSTGRES_PASSWORD")
+	if postgresPassword == "" {
+		postgresPassword = "postgres"
+	}
+
+	postgresDBName := os.Getenv("POSTGRES_DB")
+	if postgresDBName == "" {
+		postgresDBName = "prediction_service"
+	}
+
+	postgresSSLMode := os.Getenv("POSTGRES_SSLMODE")
+	if postgresSSLMode == "" {
+		postgresSSLMode = "disable"
+	}
+
 	return &Config{
 		DataPath:          dataPath,
 		ModelPath:         modelPath,
 		ProcessedDataPath: processedDataPath,
 		ServerPort:        serverPort,
 		SchedulerInterval: schedulerInterval,
+		PostgresHost:      postgresHost,
+		PostgresPort:      postgresPort,
+		PostgresUser:      postgresUser,
+		PostgresPassword:  postgresPassword,
+		PostgresDBName:    postgresDBName,
+		PostgresSSLMode:   postgresSSLMode,
 	}, nil
+}
+
+// GetPostgresConnectionString returns the PostgreSQL connection string
+func (c *Config) GetPostgresConnectionString() string {
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		c.PostgresHost, c.PostgresPort, c.PostgresUser, c.PostgresPassword, c.PostgresDBName, c.PostgresSSLMode)
 }

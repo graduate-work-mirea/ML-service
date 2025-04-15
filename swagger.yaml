@@ -9,7 +9,7 @@ servers:
 paths:
   /api/v1/predict:
     post:
-      summary: Make a price and sales prediction
+      summary: Make a price and sales prediction with full feature set
       description: Predict future price and sales for a product based on input features
       requestBody:
         required: true
@@ -17,6 +17,35 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PredictionRequest'
+      responses:
+        '200':
+          description: Successful prediction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionResult'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/predict/minimal:
+    post:
+      summary: Make a price and sales prediction with minimal input
+      description: Predict future price and sales for a product using minimal input data. Historical features will be automatically fetched from the database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictionRequestMinimal'
       responses:
         '200':
           description: Successful prediction
@@ -199,6 +228,50 @@ components:
           type: number
           format: float
           description: Average price over the last 7 days
+    PredictionRequestMinimal:
+      type: object
+      required:
+        - product_name
+        - region
+        - seller
+      properties:
+        product_name:
+          type: string
+          description: Name of the product
+        region:
+          type: string
+          description: Region where the product is sold
+        seller:
+          type: string
+          description: Seller of the product
+        prediction_date:
+          type: string
+          format: date-time
+          description: Optional date for the prediction (default is current date)
+        price:
+          type: number
+          format: float
+          description: Optional override for current price of the product
+        original_price:
+          type: number
+          format: float
+          description: Optional override for original price of the product
+        stock_level:
+          type: number
+          format: float
+          description: Optional override for current stock level
+        customer_rating:
+          type: number
+          format: float
+          description: Optional override for average customer rating
+        review_count:
+          type: number
+          format: float
+          description: Optional override for number of customer reviews
+        delivery_days:
+          type: number
+          format: float
+          description: Optional override for delivery time in days
     PredictionResult:
       type: object
       properties:

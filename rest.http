@@ -9,7 +9,7 @@ POST http://localhost:6785/api/v1/train
 Accept: application/json
 
 ###
-# Make a prediction
+# Make a prediction with full feature set
 POST http://localhost:6785/api/v1/predict
 Content-Type: application/json
 Accept: application/json
@@ -42,4 +42,29 @@ Accept: application/json
   "price_rolling_mean_3": 7543.0,
   "sales_quantity_rolling_mean_7": 10.714,
   "price_rolling_mean_7": 7396.14
+}
+
+###
+# Make a prediction with minimal input
+POST http://localhost:6785/api/v1/predict/minimal
+Content-Type: application/json
+Accept: application/json
+
+{
+  "product_name": "Смартфон Xiaomi 14 Pro",
+  "region": "Москва",
+  "seller": "ИП «Некрасова, Фролов и Кириллова»"
+}
+
+###
+# Make a prediction with minimal input and price override
+POST http://localhost:6785/api/v1/predict/minimal
+Content-Type: application/json
+Accept: application/json
+
+{
+  "product_name": "Смартфон Xiaomi 14 Pro",
+  "region": "Москва",
+  "seller": "ИП «Некрасова, Фролов и Кириллова»",
+  "price": 44977
 }

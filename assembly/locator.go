@@ -16,6 +16,7 @@ type ServiceLocator struct {
 	Config               *config.Config
 	Logger               *zap.SugaredLogger
 	FileRepository       *repository.FileRepository
+	PostgresRepository   *repository.PostgresRepository
 	MLPredictionService  *service.MLPredictionService
 	PredictionController *controller.PredictionAPIController
 	HTTPServer           *http.Server
@@ -26,8 +27,15 @@ func NewServiceLocator(cfg *config.Config, logger *zap.SugaredLogger) (*ServiceL
 	// Initialize repositories
 	fileRepo := repository.NewFileRepository(cfg.ProcessedDataPath, cfg.ModelPath)
 
+	// Initialize PostgreSQL repository
+	postgresRepo, err := repository.NewPostgresRepository(cfg.GetPostgresConnectionString())
+	if err != nil {
+		logger.Errorw("Failed to initialize PostgreSQL repository", "error", err)
+		return nil, err
+	}
+
 	// Initialize services
-	mlService := service.NewMLPredictionService(fileRepo)
+	mlService := service.NewMLPredictionService(fileRepo, postgresRepo, logger)
 
 	// Initialize controllers
 	predictionController := controller.NewPredictionAPIController(mlService, logger)
@@ -56,6 +64,7 @@ func NewServiceLocator(cfg *config.Config, logger *zap.SugaredLogger) (*ServiceL
 		Config:               cfg,
 		Logger:               logger,
 		FileRepository:       fileRepo,
+		PostgresRepository:   postgresRepo,
 		MLPredictionService:  mlService,
 		PredictionController: predictionController,
 		HTTPServer:           httpServer,
@@ -63,11 +72,12 @@ func NewServiceLocator(cfg *config.Config, logger *zap.SugaredLogger) (*ServiceL
 	}, nil
 }
 
+// Close closes all resources
 func (l *ServiceLocator) Close() {
-	if l.HTTPServer != nil {
-		l.Logger.Info("Shutting down HTTP server...")
-		if err := l.HTTPServer.Close(); err != nil {
-			l.Logger.Errorw("Error shutting down HTTP server", "error", err)
+	// Close PostgreSQL connection if it exists
+	if l.PostgresRepository != nil {
+		if err := l.PostgresRepository.Close(); err != nil {
+			l.Logger.Errorw("Error closing PostgreSQL connection", "error", err)
 		}
 	}
 }
