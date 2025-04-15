@@ -1,0 +1,241 @@
+openapi: 3.0.0
+info:
+  title: ML Prediction Service
+  description: Predict product price and sales using LightGBM models
+  version: 1.0.0
+servers:
+  - url: http://localhost:6785
+    description: Local development server
+paths:
+  /api/v1/predict:
+    post:
+      summary: Make a price and sales prediction
+      description: Predict future price and sales for a product based on input features
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictionRequest'
+      responses:
+        '200':
+          description: Successful prediction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionResult'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/train:
+    post:
+      summary: Train the prediction models
+      description: Train the price and sales prediction models using the processed data
+      responses:
+        '200':
+          description: Models trained successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingResult'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/status:
+    get:
+      summary: Check model status
+      description: Check if the prediction models are trained and available
+      responses:
+        '200':
+          description: Status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models_trained:
+                    type: boolean
+                    description: Whether the models are trained and available
+components:
+  schemas:
+    PredictionRequest:
+      type: object
+      required:
+        - product_name
+        - brand
+        - category
+        - region
+        - seller
+        - price
+        - original_price
+        - discount_percentage
+        - stock_level
+        - customer_rating
+        - review_count
+        - delivery_days
+        - is_weekend
+        - is_holiday
+        - day_of_week
+        - month
+        - quarter
+        - sales_quantity_lag_1
+        - price_lag_1
+        - sales_quantity_lag_3
+        - price_lag_3
+        - sales_quantity_lag_7
+        - price_lag_7
+        - sales_quantity_rolling_mean_3
+        - price_rolling_mean_3
+        - sales_quantity_rolling_mean_7
+        - price_rolling_mean_7
+      properties:
+        product_name:
+          type: string
+          description: Name of the product
+        brand:
+          type: string
+          description: Brand of the product
+        category:
+          type: string
+          description: Category of the product
+        region:
+          type: string
+          description: Region where the product is sold
+        seller:
+          type: string
+          description: Seller of the product
+        price:
+          type: number
+          format: float
+          description: Current price of the product
+        original_price:
+          type: number
+          format: float
+          description: Original price of the product
+        discount_percentage:
+          type: number
+          format: float
+          description: Discount percentage
+        stock_level:
+          type: number
+          format: float
+          description: Current stock level
+        customer_rating:
+          type: number
+          format: float
+          description: Average customer rating
+        review_count:
+          type: number
+          format: float
+          description: Number of customer reviews
+        delivery_days:
+          type: number
+          format: float
+          description: Delivery time in days
+        is_weekend:
+          type: boolean
+          description: Whether the day is a weekend
+        is_holiday:
+          type: boolean
+          description: Whether the day is a holiday
+        day_of_week:
+          type: integer
+          description: Day of the week (0-6)
+        month:
+          type: integer
+          description: Month (1-12)
+        quarter:
+          type: integer
+          description: Quarter (1-4)
+        sales_quantity_lag_1:
+          type: number
+          format: float
+          description: Sales quantity 1 day ago
+        price_lag_1:
+          type: number
+          format: float
+          description: Price 1 day ago
+        sales_quantity_lag_3:
+          type: number
+          format: float
+          description: Sales quantity 3 days ago
+        price_lag_3:
+          type: number
+          format: float
+          description: Price 3 days ago
+        sales_quantity_lag_7:
+          type: number
+          format: float
+          description: Sales quantity 7 days ago
+        price_lag_7:
+          type: number
+          format: float
+          description: Price 7 days ago
+        sales_quantity_rolling_mean_3:
+          type: number
+          format: float
+          description: Average sales quantity over the last 3 days
+        price_rolling_mean_3:
+          type: number
+          format: float
+          description: Average price over the last 3 days
+        sales_quantity_rolling_mean_7:
+          type: number
+          format: float
+          description: Average sales quantity over the last 7 days
+        price_rolling_mean_7:
+          type: number
+          format: float
+          description: Average price over the last 7 days
+    PredictionResult:
+      type: object
+      properties:
+        predicted_price:
+          type: number
+          format: float
+          description: Predicted price for the product
+        predicted_sales:
+          type: number
+          format: float
+          description: Predicted sales quantity for the product
+    TrainingResult:
+      type: object
+      properties:
+        price_model:
+          type: object
+          properties:
+            best_iteration:
+              type: integer
+              description: Best iteration number for price model
+            best_score:
+              type: number
+              format: float
+              description: Best score for price model
+        sales_model:
+          type: object
+          properties:
+            best_iteration:
+              type: integer
+              description: Best iteration number for sales model
+            best_score:
+              type: number
+              format: float
+              description: Best score for sales model
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message 

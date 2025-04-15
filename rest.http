@@ -1,0 +1,45 @@
+###
+# Check model status
+GET http://localhost:6785/api/v1/status
+Accept: application/json
+
+###
+# Train models
+POST http://localhost:6785/api/v1/train
+Accept: application/json
+
+###
+# Make a prediction
+POST http://localhost:6785/api/v1/predict
+Content-Type: application/json
+Accept: application/json
+
+{
+  "product_name": "Джинсы Lee Rider",
+  "brand": "Lee",
+  "category": "Одежда",
+  "region": "Москва",
+  "seller": "АО «Шарапов»",
+  "price": 7500.0,
+  "original_price": 7500.0,
+  "discount_percentage": 0.0,
+  "stock_level": 229.0,
+  "customer_rating": 4.5,
+  "review_count": 408.0,
+  "delivery_days": 1.0,
+  "is_weekend": false,
+  "is_holiday": false,
+  "day_of_week": 3,
+  "month": 3,
+  "quarter": 1,
+  "sales_quantity_lag_1": 11.0,
+  "price_lag_1": 9700.0,
+  "sales_quantity_lag_3": 10.0,
+  "price_lag_3": 8590.0,
+  "sales_quantity_lag_7": 26.0,
+  "price_lag_7": 6320.0,
+  "sales_quantity_rolling_mean_3": 7.0,
+  "price_rolling_mean_3": 7543.0,
+  "sales_quantity_rolling_mean_7": 10.714,
+  "price_rolling_mean_7": 7396.14
+}
